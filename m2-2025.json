@@ -1,0 +1,287 @@
+{
+    "TOPO": {
+        "CLI-DT": {
+            "type": "qemu"
+        },
+        "ADMIN-DT": {
+            "type": "qemu"
+        },
+        "SRV1-DT": {
+            "type": "qemu"
+        },
+        "SRV2-DT": {
+            "type": "qemu"
+        },
+        "SRV3-DT": {
+            "type": "qemu"
+        },
+        "SW-DT": {
+            "type": "qemu"
+        },
+        "FW-DT": {
+            "type": "qemu"
+        },
+        "R-DT": {
+            "type": "eco"
+        },
+        "CLI-HQ": {
+            "type": "qemu"
+        },
+        "ADMIN-HQ": {
+            "type": "qemu"
+        },
+        "SRV1-HQ": {
+            "type": "qemu"
+        },
+        "SW3-HQ": {
+            "type": "qemu"
+        },
+        "SW2-HQ": {
+            "type": "qemu"
+        },
+        "SW1-HQ": {
+            "type": "qemu"
+        },
+        "R-HQ": {
+            "type": "eco"
+        },
+        "ISP": {
+            "type": "qemu"
+        }
+    },
+    "TESTS": {
+        "Б2 Групповые политики для CLI в ADMC на ADMIN-HQ backgraund": {
+            "vms": [
+                "CLI-HQ"
+            ],
+            "cmd": [
+                "dconf dump / | grep background"
+            ]
+        },
+        "Б2 Групповые политики для CLI в ADMC на ADMIN-HQ network": {
+            "vms": [
+                "CLI-HQ"
+            ],
+            "cmd": [
+                "dconf dump / | grep NetworkManager"
+            ]
+        },
+        "Б2 Групповые политики для CLI в ADMC на ADMIN-HQ mate change settings": {
+            "vms": [
+                "CLI-HQ"
+            ],
+            "cmd": [
+                "dconf dump / | grep mate"
+            ]
+        },
+        "Б2 Групповые политики для ADMIN в ADMC на ADMIN-HQ samba share": {
+            "vms": [
+                "ADMIN-HQ"
+            ],
+            "cmd": [
+                "dconf dump / | grep Drives"
+            ]
+        },
+        "Б2 Межсетевой экран: сервера и Администраторы офиса DT имеют доступ ко всем устройствам": {},
+        "Б2 Межсетевой экран: клиенты офиса DT имеют доступ только к серверам": {},
+        "Б2 Межсетевой экран: ICMP-запросы разрешены администраторами офиса DT на внутренние интерфейсы межсетевого экрана": {},
+        "Б2 Межсетевой экран: администратораы офиса DT имеют возможность удаленного управления межсетевым экраном по SSH и HTTP": {
+            "vms": [
+                "FW-DT"
+            ],
+            "cmd": [
+                "iptables -nvL forward_user_rules"
+            ]
+        },
+        "Б2 Центр сбора логов SRV1-HQ": {
+            "vms": [
+                "SRV1-HQ"
+            ],
+            "cmd": [
+                "ss -ntulp | grep 514"
+            ]
+        },
+        "Б2 Клиены для отправления логов SRV1-DT, SRV2-DT, SRV3-DT": {
+            "vms": [
+                "SRV1-DT",
+                "SRV2-DT",
+                "SRV3-DT"
+            ],
+            "cmd": [
+                "grep 514 -R /etc/rsyslog.conf /etc/rsyslog.d/"
+            ]
+        },
+        "Б2 Логи хранятся на SRV1-HQ /var/logz/<ХОСТНЕЙМ>.log": {
+            "vms": [
+                "SRV1-HQ"
+            ],
+            "cmd": [
+                "find /var/logz -iname srv*.log -exec tail -n 3 {} \\;"
+            ]
+        },
+        "Б2 Бекап общей папки на SRV1-HQ": {
+            "vms": [
+                "SRV1-HQ"
+            ],
+            "cmd": [
+                "ls -ls /var/bacrr/"
+            ]
+        },
+        "Б2 Создан и работает юнит для бекапа": {
+            "vms": [
+                "SRV1-HQ"
+            ],
+            "cmd": [
+                "systemctl status backup",
+                "find /etc/systemd/ -maxdepth 2 -name backup.* -exec cat {} \\;"
+            ]
+        },
+        "Б2 Docker Registry установлен на SRV2-DT": {
+            "vms": [
+                "SRV2-DT"
+            ],
+            "cmd": [
+                "docker ps | grep registry"
+            ]
+        },
+        "Б2 Образ приложения собран в соответсвии с заданием и загружен в выбранный репозиторий Docker": {
+            "vms": [
+                "SRV2-DT"
+            ],
+            "cmd": [
+                "find /root /home -type f -name Dockerfile -exec cat {} \\;",
+                "curl http://127.0.0.1:5000/v2/_catalog"
+            ]
+        },
+        "Б2 Развернут Docker контенйнер WEB в соответсвии с заданием": {
+            "vms": [
+                "SRV2-DT"
+            ],
+            "cmd": [
+                "docker ps | grep web",
+                "docker inspect web | grep -A3 RestartPolicy"
+            ]
+        },
+        "Б2 SRV3-DT Zabbix установлен с базой данных PostgreSQL": {
+            "vms": [
+                "SRV3-DT"
+            ],
+            "cmd": [
+                "systemctl list-units zabbix_*"
+            ]
+        },
+        "Б2 SRV3-DT Zabbix HTTP": {
+            "vms": [
+                "SRV3-DT"
+            ],
+            "cmd": [
+                "curl -s http://127.0.0.1/zabbix/ | grep -iE \"zabbix\""
+            ]
+        },
+        "Б2 SRV3-DT Zabbix добавлены хосты SRV1-DT, SRV2-DT, SRV3-DT, SRV1-HQ": {
+            "vms": [
+                "SRV1-DT",
+                "SRV2-DT",
+                "SRV3-DT",
+                "SRV1-HQ"
+            ],
+            "cmd": [
+                "systemctl list-units zabbix_*"
+            ]
+        },
+        "Б2 SRV3-DT Zabbix мониторится шаблоном Linux-agent": {
+            "vms": [
+                "SRV3-DT"
+            ],
+            "cmd": [
+                "psql -U postgres -d zabbix -c \"SELECT h.name AS hostname, t.name AS template_name FROM hosts h JOIN hosts_templates ht ON h.hostid = ht.hostid JOIN hosts t ON ht.templateid = t.hostid WHERE h.name ~ 'srv'\""
+            ]
+        },
+        "Б2 На SRV1-DT развернут nginx": {
+            "vms": [
+                "SRV1-DT"
+            ],
+            "cmd": [
+                "systemctl list-units nginx*",
+                "grep -A4 -R -E \"au.team\" /etc/nginx/sites-enabled.d/"
+            ]
+        },
+        "Б2 По имени www.au.team открывается сайт, расположенный на SRV2-DT": {
+            "vms": [
+                "SRV1-DT"
+            ],
+            "cmd": [
+                "curl -s http://www.au.team"
+            ]
+        },
+        "Б2 По имени zabbix.au.team открывается zabbix, расположенный на SRV3-DT": {
+            "vms": [
+                "SRV1-DT"
+            ],
+            "cmd": [
+                "curl -s http://zabbix.au.team/zabbix/ | grep -iE \"zabbix\""
+            ]
+        },
+        "Б2 Ansible установлен на ADMIN-DT": {
+            "vms": [
+                "ADMIN-DT"
+            ],
+            "cmd": [
+                "ansible --version"
+            ]
+        },
+        "Б2 Ansible inventory содержит нужные хосты и группы": {
+            "vms": [
+                "ADMIN-DT"
+            ],
+            "cmd": [
+                "cat /etc/ansible/inventory"
+            ]
+        },
+        "Б2 Ansible ping-pong": {
+            "vms": [
+                "ADMIN-DT"
+            ],
+            "cmd": [
+                "ansible all -m ping"
+            ]
+        },
+        "Б2 ADMIN-HQ Кибер Бекап": {
+            "vms": [
+                "ADMIN-HQ"
+            ],
+            "cmd": [
+                "systemctl list-units acronis_*"
+            ],
+            "comment": "Если службы не запущены, дальше КИБЕРБЕКАП не проверяем"
+        },
+        "Б2 Организация wsr": {
+            "comment": "В браузере на ADMIN-HQ http://localhost:9877, логин root пароль toor"
+        },
+        "Б2 Пользователи администраторы": {
+            "comment": "В браузере на ADMIN-HQ http://localhost:9877, логин root пароль toor"
+        },
+        "Б2 CLI-HQ агент Кибер Бекап": {
+            "vms": [
+                "CLI-HQ"
+            ],
+            "cmd": [
+                "systemctl list-units acronis_*"
+            ]
+        },
+        "Б2 Устройство хранения sdb ": {
+            "vms": [
+                "CLI-HQ"
+            ],
+            "cmd": [
+                "df -h"
+            ]
+        },
+        "Б2 План полного резервного копирования": {
+            "comment": "В браузере на ADMIN-HQ http://localhost:9877, логин root пароль toor"
+        },
+        "Б2 Успешно выполнено полное резервное копирование": {
+            "comment": "В браузере на ADMIN-HQ http://localhost:9877, логин root пароль toor"
+        }
+    }
+}
