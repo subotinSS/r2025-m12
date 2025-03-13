@@ -57,7 +57,6 @@ for index, vm in enumerate(TOPO):
     if TOPO[vm]["type"] == "qemu":
         TOPO[vm]["obj"] = QemuMachine(pve_node, vm_id)
     if TOPO[vm]["type"] == "eco":
-        continue
         TOPO[vm]["obj"] = EcoRouter(PVE_DOMAIN, PVE_PORT, PVEAuthTicket, CSRFPreventionToken, node, vm_id, prepare=True)
 
 write_result(f"""
